@@ -5,7 +5,8 @@
 **Professional RF-based drone detection, classification and real-time threat alerting.**
 
 [![Release](https://img.shields.io/github/v/release/CyberCodium/DroneHunter?color=f59e0b&label=latest)](../../releases)
-[![Platform](https://img.shields.io/badge/platform-Linux%20x86__64-blue)](../../releases)
+[![Platform Linux](https://img.shields.io/badge/platform-Linux%20x86__64-blue)](../../releases)
+[![Platform Windows](https://img.shields.io/badge/platform-Windows%20x64-0078d4)](../../releases)
 [![License](https://img.shields.io/badge/license-Private-red)](LICENSE)
 [![Author](https://img.shields.io/badge/author-E.B.G-cyan)](mailto:hacklabosofficial@proton.me)
 
@@ -85,7 +86,8 @@
 
 | Platform | File | Size |
 |---|---|---|
-| Linux x86_64 | [`drone_hunter`](../../releases/latest) | ~67 MB |
+| Linux x86_64 | [`drone_hunter_linux_x86_64`](../../releases/latest) | ~67 MB |
+| Windows x64 | [`drone_hunter_windows_x64.exe`](../../releases/latest) | ~70 MB |
 
 → **[Latest Release ↗](../../releases/latest)**
 
@@ -95,9 +97,15 @@ No installation required — single standalone executable, no Python needed.
 
 ## Quick Start
 
+**Linux:**
 ```bash
-chmod +x drone_hunter
-./drone_hunter
+chmod +x drone_hunter_linux_x86_64
+./drone_hunter_linux_x86_64
+```
+
+**Windows:**
+```
+Double-click drone_hunter_windows_x64.exe
 ```
 
 1. Click **▶ INICIAR CAZA** to begin scanning

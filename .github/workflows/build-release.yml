@@ -1,0 +1,105 @@
+name: Build & Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-22.04
+            artifact: drone_hunter
+            output_flag: ""
+          - os: windows-latest
+            artifact: drone_hunter.exe
+            output_flag: ""
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      # ── Linux system deps ───────────────────────────────────────────
+      - name: Install Linux system deps
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y \
+            python3-dev python3-pip patchelf ccache \
+            libgl1-mesa-dev libglib2.0-dev \
+            libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 \
+            libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 \
+            libxcb-xinerama0 libxcb-xfixes0 libegl1 \
+            alsa-utils libportaudio2
+
+      # ── Windows system deps ─────────────────────────────────────────
+      - name: Install Windows C++ Build Tools
+        if: runner.os == 'Windows'
+        uses: ilammy/msvc-dev-cmd@v1
+
+      # ── Python setup ────────────────────────────────────────────────
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Python dependencies
+        run: |
+          pip install --upgrade pip
+          pip install PyQt5 pyqtgraph numpy nuitka zstandard ordered-set
+
+      # ── Nuitka build — Linux ────────────────────────────────────────
+      - name: Build binary (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          python -m nuitka \
+            --onefile \
+            --enable-plugin=pyqt5 \
+            --output-dir=dist \
+            --output-filename=drone_hunter \
+            --remove-output \
+            --assume-yes-for-downloads \
+            drone_hunter.py
+
+      # ── Nuitka build — Windows ──────────────────────────────────────
+      - name: Build binary (Windows)
+        if: runner.os == 'Windows'
+        shell: cmd
+        run: >
+          python -m nuitka
+          --onefile
+          --enable-plugin=pyqt5
+          --windows-console-mode=disable
+          --output-dir=dist
+          --output-filename=drone_hunter
+          --remove-output
+          --assume-yes-for-downloads
+          drone_hunter.py
+
+      # ── Upload to GitHub Release ─────────────────────────────────────
+      - name: Upload Linux binary to release
+        if: runner.os == 'Linux'
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: dist/drone_hunter
+          asset_name: drone_hunter_linux_x86_64
+          tag: ${{ github.ref }}
+          overwrite: true
+
+      - name: Upload Windows binary to release
+        if: runner.os == 'Windows'
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: dist/drone_hunter.exe
+          asset_name: drone_hunter_windows_x64.exe
+          tag: ${{ github.ref }}
+          overwrite: true
