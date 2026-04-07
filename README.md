@@ -1,4 +1,4 @@
-# DroneHunter 🛸
+# DroneHunter 
 
 **Professional RF-based drone detection, classification and threat alerting system.**
 
